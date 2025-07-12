@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Daftar Pesanan{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Daftar Pesanan</h2>
+    <table class="table table-bordered table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Nama Pelanggan</th>
+                <th>Tanggal</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.user_name }}</td>
+                <td>{{ order.created_at.strftime('%d-%m-%Y %H:%M') if order.created_at else '' }}</td>
+                <td>Rp {{ order.total|int|default(0) }}</td>
+                <td>
+                {% if order.status != 'selesai' %}
+                    <form method="post" action="{{ url_for('admin_order_selesai', order_id=order._id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-success btn-sm">Selesai</button>
+                    </form>
+                {% else %}
+                    <span class="badge bg-success">Selesai</span>
+                {% endif %}
+                </td>
+                <td><a href="{{ url_for('admin_order_detail', order_id=order._id) }}" class="btn btn-sm btn-primary">Detail</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center">Belum ada pesanan.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %} 

@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Beranda - Toko Elektronik{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Temukan Elektronik Terbaik
+                </h1>
+                <p class="lead mb-4">
+                    Toko elektronik terpercaya dengan produk berkualitas dan harga terbaik. 
+                    Dapatkan gadget terbaru dengan garansi resmi.
+                </p>
+                <a href="#products" class="btn btn-light btn-lg">
+                    <i class="fas fa-shopping-cart me-2"></i>Lihat Produk
+                </a>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="fas fa-laptop" style="font-size: 8rem; opacity: 0.8;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" class="form-control search-box" id="searchInput" 
+                           placeholder="Cari produk elektronik...">
+                    <button class="btn btn-primary" type="button" onclick="searchProducts()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Section -->
+{% if featured_products and featured_products|length > 0 %}
+<section id="featured-products" class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold mb-3">Produk Unggulan</h2>
+                <p class="text-muted">Produk paling banyak dibeli oleh pelanggan</p>
+            </div>
+        </div>
+        <div class="row">
+            {% for product in featured_products %}
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100 border border-warning">
+                    <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.description }}</p>
+                        <div class="mt-auto">
+                            <p class="price mb-3">Rp {{ "{:,}".format(product.price) }}</p>
+                            <a href="{{ url_for('product_detail', product_id=product.id) }}" 
+                               class="btn btn-warning w-100">
+                                <i class="fas fa-star me-2"></i>Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Products Section -->
+<section id="products" class="py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <h2 class="fw-bold mb-3">Semua Produk</h2>
+                <p class="text-muted">Pilihan produk elektronik terbaik dengan kualitas premium</p>
+            </div>
+        </div>
+        <div class="row" id="productsContainer">
+            {% for product in products %}
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card h-100">
+                    <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text text-muted">{{ product.description }}</p>
+                        <div class="mt-auto">
+                            <p class="price mb-3">Rp {{ "{:,}".format(product.price) }}</p>
+                            <a href="{{ url_for('product_detail', product_id=product.id) }}" 
+                               class="btn btn-primary w-100">
+                                <i class="fas fa-eye me-2"></i>Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 text-center mb-4">
+                <div class="p-4">
+                    <i class="fas fa-shipping-fast fa-3x text-primary mb-3"></i>
+                    <h4>Pengiriman Cepat</h4>
+                    <p class="text-muted">Pengiriman dalam 1-2 hari kerja ke seluruh Indonesia</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="p-4">
+                    <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                    <h4>Garansi Resmi</h4>
+                    <p class="text-muted">Semua produk dilengkapi garansi resmi dari distributor</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="p-4">
+                    <i class="fas fa-headset fa-3x text-primary mb-3"></i>
+                    <h4>Customer Service 24/7</h4>
+                    <p class="text-muted">Layanan pelanggan siap membantu Anda kapan saja</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function searchProducts() {
+    const query = document.getElementById('searchInput').value;
+    // Sembunyikan produk unggulan saat pencarian
+    const featuredSection = document.getElementById('featured-products');
+    if (featuredSection) featuredSection.style.display = query ? 'none' : '';
+    
+    fetch(`/api/search?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(products => {
+            // Tambahkan validasi agar selalu array
+            if (!Array.isArray(products)) {
+                products = [];
+            }
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+            
+            if (products.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center">
+                        <h4 class="text-muted">Tidak ada produk yang ditemukan</h4>
+                        <p>Silakan coba kata kunci lain</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            products.forEach(product => {
+                const productCard = `
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="card h-100">
+                            <img src="${product.image}" class="card-img-top" alt="${product.name}">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">${product.name}</h5>
+                                <p class="card-text text-muted">${product.description}</p>
+                                <div class="mt-auto">
+                                    <p class="price mb-3">Rp ${product.price.toLocaleString()}</p>
+                                    <a href="/product/${product.id}" class="btn btn-primary w-100">
+                                        <i class="fas fa-eye me-2"></i>Lihat Detail
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += productCard;
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Tampilkan pesan error di UI
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = `
+                <div class="col-12 text-center">
+                    <h4 class="text-danger">Terjadi kesalahan saat mencari produk</h4>
+                    <p>Silakan coba lagi nanti</p>
+                </div>
+            `;
+        });
+}
+
+// Search on Enter key press
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchProducts();
+    }
+});
+// Tampilkan kembali produk unggulan jika pencarian dikosongkan
+searchInput.addEventListener('keyup', function(e) {
+    if (this.value === '') {
+        const featuredSection = document.getElementById('featured-products');
+        if (featuredSection) featuredSection.style.display = '';
+        searchProducts();
+    }
+});
+</script>
+{% endblock %} 

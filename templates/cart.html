@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Keranjang Belanja{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Keranjang Belanja</h2>
+    {% if cart_items and cart_items|length > 0 %}
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>Produk</th>
+                    <th>Harga</th>
+                    <th>Jumlah</th>
+                    <th>Subtotal</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>Rp {{ "{:,}".format(item.product.price) }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>Rp {{ "{:,}".format(item.subtotal) }}</td>
+                    <td>
+                        <form action="{{ url_for('remove_from_cart', product_id=item.product.id) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Hapus item ini dari keranjang?');">
+                                <i class="bi bi-trash"></i> Hapus
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-4">
+        <h4>Total: <span class="text-success">Rp {{ "{:,}".format(total) }}</span></h4>
+        <a href="{{ url_for('checkout_cart') }}" class="btn btn-success btn-lg">Checkout</a>
+    </div>
+    {% else %}
+    <div class="alert alert-info">Keranjang belanja kosong.</div>
+    {% endif %}
+</div>
+{% endblock %} 

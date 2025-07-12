@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Profil - Toko Elektronik{% endblock %}
+
+{% block content %}
+<!-- Profile Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <!-- Profile Info -->
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                                 style="width: 80px; height: 80px;">
+                                <i class="fas fa-user fa-2x text-white"></i>
+                            </div>
+                            <h4 class="fw-bold">{{ user.name if user and user.name else 'User' }}</h4>
+                            <p class="text-muted">{{ user.email if user and user.email else '' }}</p>
+                            {% if user and user.phone %}
+                                <p class="text-muted">
+                                    <i class="fas fa-phone me-2"></i>{{ user.phone }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="border-top pt-3">
+                            <h6 class="fw-bold mb-3">Informasi Akun</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-calendar me-2 text-primary"></i>
+                                    Bergabung: {{ user.created_at.strftime('%d %B %Y') if user.created_at else 'N/A' }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-shopping-cart me-2 text-primary"></i>
+                                    Total Pembelian: {{ activity.purchases|length if activity and activity.purchases is not none else 0 }}
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-eye me-2 text-primary"></i>
+                                    Produk Dilihat: {{ activity.views|length if activity and activity.views is not none else 0 }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Activity Content -->
+            <div class="col-lg-8">
+                <!-- Purchase History -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">
+                            <i class="fas fa-shopping-bag me-2"></i>Riwayat Pembelian
+                        </h5>
+                        
+                        {% if activity and activity.purchases %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Produk</th>
+                                            <th>Jumlah</th>
+                                            <th>Harga</th>
+                                            <th>Total</th>
+                                            <th>Tanggal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for purchase in activity.purchases %}
+                                        <tr>
+                                            <td>{{ purchase.product_name if purchase and purchase.product_name else '-' }}</td>
+                                            <td>{{ purchase.quantity if purchase and purchase.quantity is not none else 1 }}</td>
+                                            <td>Rp {{ "{:,}".format(purchase.price) if purchase and purchase.price is not none else '0' }}</td>
+                                            <td class="fw-bold">Rp {{ "{:,}".format(purchase.total_amount) if purchase and purchase.total_amount is not none else '0' }}</td>
+                                            <td>{{ purchase.purchase_date.strftime('%d/%m/%Y') if purchase and purchase.purchase_date else 'N/A' }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                                <h6 class="text-muted">Belum ada pembelian</h6>
+                                <p class="text-muted">Mulai berbelanja untuk melihat riwayat pembelian Anda</p>
+                                <a href="{{ url_for('home') }}" class="btn btn-primary">
+                                    <i class="fas fa-shopping-cart me-2"></i>Mulai Belanja
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Product Views -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">
+                            <i class="fas fa-eye me-2"></i>Produk yang Dilihat
+                        </h5>
+                        
+                        {% if activity and activity.views %}
+                            <div class="row">
+                                {% for view in activity.views[:6] %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex align-items-center p-3 border rounded">
+                                        <div class="bg-light rounded p-2 me-3">
+                                            <i class="fas fa-box fa-2x text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1">Produk ID: {{ view.product_id if view and view.product_id else '-' }}</h6>
+                                            <small class="text-muted">
+                                                Dilihat: {{ view.viewed_at.strftime('%d/%m/%Y %H:%M') if view and view.viewed_at else 'N/A' }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            {% if activity.views|length > 6 %}
+                                <div class="text-center mt-3">
+                                    <button class="btn btn-outline-primary">Lihat Semua</button>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-eye fa-3x text-muted mb-3"></i>
+                                <h6 class="text-muted">Belum ada produk yang dilihat</h6>
+                                <p class="text-muted">Jelajahi produk untuk melihat riwayat kunjungan</p>
+                                <a href="{{ url_for('home') }}" class="btn btn-primary">
+                                    <i class="fas fa-search me-2"></i>Jelajahi Produk
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Recommendations -->
+                {% if recommendations %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">
+                            <i class="fas fa-star me-2"></i>Rekomendasi untuk Anda
+                        </h5>
+                        
+                        <div class="row">
+                            {% for rec in recommendations %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ rec.product_name }}</h6>
+                                        <p class="card-text text-muted">Berdasarkan preferensi Anda</p>
+                                        <a href="/product/{{ rec.product_id }}" class="btn btn-sm btn-primary">
+                                            Lihat Produk
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %} 

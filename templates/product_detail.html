@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Toko Elektronik{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ product.image or 'https://via.placeholder.com/600x400/CCCCCC/FFFFFF?text=No+Image' }}" alt="{{ product.name }}" class="img-fluid rounded shadow">
+        </div>
+        <div class="col-md-6">
+            <h1 class="display-5 fw-bold">{{ product.name }}</h1>
+            <p class="text-muted">{{ product.category }}</p>
+            <p class="lead fs-3">Rp {{ "{:,.0f}".format(product.price) }}</p>
+            <p>{{ product.description }}</p>
+            
+            {% if product.tags %}
+            <p class="text-muted">
+                Tags: 
+                {% for tag in product.tags %}
+                <span class="badge bg-secondary">{{ tag }}</span>
+                {% endfor %}
+            </p>
+            {% endif %}
+
+            <!-- Tombol Aksi -->
+            {% if user %}
+            <div class="d-grid gap-2 d-md-block mt-4">
+                {% if user.role == 'admin' %}
+                    <a href="{{ url_for('edit_product', product_id=product.id) }}" class="btn btn-warning">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
+                    <form action="{{ url_for('delete_product', product_id=product.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Yakin ingin menghapus produk ini?');">
+                            <i class="bi bi-trash"></i> Hapus
+                        </button>
+                    </form>
+                {% else %}
+                    <button class="btn btn-outline-danger" id="like-btn" data-product-id="{{ product.id }}">
+                        <i class="bi bi-heart"></i> Suka
+                    </button>
+                    <button class="btn btn-outline-primary" id="add-to-cart-btn" data-product-id="{{ product.id }}">
+                        <i class="bi bi-cart-plus"></i> Tambah ke Keranjang
+                    </button>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="alert alert-info mt-4" role="alert">
+                Silakan <a href="{{ url_for('login', next=request.path) }}" class="alert-link">login</a> untuk menyukai, menambahkan ke keranjang, atau membeli produk ini.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+                        
+    <!-- Bagian Produk Sejenis -->
+    <hr class="my-5">
+    <div class="row mt-4">
+        <div class="col-12">
+            <h3 class="mb-4">Produk Sejenis</h3>
+        </div>
+        {% for p in similar_products %}
+            <div class="col-md-4">
+                <div class="card mb-4 shadow-sm">
+                    <img src="{{ p.image or 'https://via.placeholder.com/300x200' }}" class="card-img-top" alt="{{ p.name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ p.name }}</h5>
+                        <p class="card-text">Rp {{ "{:,.0f}".format(p.price) }}</p>
+                        <a href="{{ url_for('product_detail', product_id=p.id) }}" class="btn btn-sm btn-outline-secondary">Lihat Detail</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12">
+                <p>Tidak ada produk sejenis yang ditemukan.</p>
+            </div>
+        {% endfor %}
+    </div>
+                            
+    <!-- Bagian Rekomendasi -->
+    <div class="row mt-5">
+        <div class="col-12">
+            
+            <!-- Rekomendasi 1: Sering Dibeli Bersama -->
+            {% if frequently_bought_together %}
+            <h3 class="mb-3">Sering Dibeli Bersama</h3>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for p in frequently_bought_together %}
+                <div class="col">
+                    <div class="card h-100">
+                        <a href="{{ url_for('product_detail', product_id=p.id) }}">
+                            <img src="{{ p.image or 'https://via.placeholder.com/300x200' }}" class="card-img-top" alt="{{ p.name }}">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ p.name }}</h5>
+                            <p class="card-text">Rp {{ "{:,.0f}".format(p.price) }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <hr class="my-5">
+            {% endif %}
+
+            <!-- Rekomendasi 2: Produk Serupa (berdasarkan Kategori/Tags) -->
+            {% if similar_products_content %}
+            <h3 class="mb-3">Produk Serupa</h3>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for p in similar_products_content %}
+                <div class="col">
+                    <div class="card h-100">
+                        <a href="{{ url_for('product_detail', product_id=p.id) }}">
+                             <img src="{{ p.image or 'https://via.placeholder.com/300x200' }}" class="card-img-top" alt="{{ p.name }}">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ p.name }}</h5>
+                            <p class="card-text">Rp {{ "{:,.0f}".format(p.price) }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <hr class="my-5">
+            {% endif %}
+
+            <!-- Rekomendasi 3: Dilihat Juga Oleh Lainnya (Collaborative) -->
+            {% if similar_products_collab %}
+            <h3 class="mb-3">Mungkin Anda Juga Suka</h3>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for p in similar_products_collab %}
+                <div class="col">
+                    <div class="card h-100">
+                        <a href="{{ url_for('product_detail', product_id=p.product_id) }}">
+                             <img src="{{ p.image or 'https://via.placeholder.com/300x200' }}" class="card-img-top" alt="{{ p.product_name }}">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ p.product_name }}</h5>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Hanya jalankan skrip jika tombol-tombol ada (artinya user sudah login)
+    const likeBtn = document.getElementById('like-btn');
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    const buyBtn = document.getElementById('buy-btn');
+
+    // Fungsi generik untuk menangani interaksi
+    const handleInteraction = async (btn, url, body = null) => {
+        if (!btn || btn.disabled) return;
+        const productId = btn.dataset.productId;
+        
+        try {
+            const fetchOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            };
+            if (body) {
+                fetchOptions.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(url, fetchOptions);
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log(result.message);
+                
+                // Memberi feedback visual
+                btn.disabled = true;
+                btn.classList.add('disabled');
+
+                if (btn.id === 'like-btn') {
+                    btn.innerHTML = '<i class="bi bi-heart-fill"></i> Disukai';
+                    btn.classList.replace('btn-outline-danger', 'btn-danger');
+                } else if (btn.id === 'add-to-cart-btn') {
+                    btn.innerHTML = '<i class="bi bi-cart-check-fill"></i> Di Keranjang';
+                    btn.classList.replace('btn-outline-primary', 'btn-primary');
+                } else if (btn.id === 'buy-btn') {
+                    alert('Pembelian berhasil dicatat!');
+                    // Redirect ke halaman profil atau riwayat pembelian
+                    window.location.href = "{{ url_for('profile') }}";
+                }
+            } else {
+                try {
+                    const error = await response.json();
+                    console.error('Gagal melakukan aksi:', error.error);
+                    alert(`Terjadi kesalahan: ${error.error || 'Silakan coba lagi.'}`);
+                } catch (parseError) {
+                    console.error('Gagal melakukan aksi:', response.statusText);
+                    alert(`Terjadi kesalahan: ${response.statusText || 'Silakan coba lagi.'}`);
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Koneksi bermasalah. Silakan coba lagi.');
+        }
+    };
+
+    // Menambahkan event listener ke setiap tombol
+    if (likeBtn) {
+        likeBtn.addEventListener('click', () => {
+            handleInteraction(likeBtn, `/api/product/${likeBtn.dataset.productId}/like`);
+        });
+    }
+
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', () => {
+            handleInteraction(addToCartBtn, `/api/product/${addToCartBtn.dataset.productId}/add_to_cart`);
+        });
+    }
+    
+    if (buyBtn) {
+        buyBtn.addEventListener('click', () => {
+            const productId = buyBtn.dataset.productId;
+            // API purchase memerlukan data produk di body
+            handleInteraction(buyBtn, `/api/purchase`, { product_id: productId });
+        });
+    }
+});
+</script>
+{% endblock %} 

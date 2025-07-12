@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Detail Pesanan{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Detail Pesanan</h2>
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">Pelanggan: {{ order.user_name }}</h5>
+            <p class="card-text">Tanggal: {{ order.created_at.strftime('%d-%m-%Y %H:%M') if order.created_at else '' }}</p>
+            <p class="card-text">Status: <span class="badge bg-{{ 'warning' if order.status == 'pending' else 'success' }}">{{ order.status|capitalize }}</span></p>
+            <form method="post" class="mb-3">
+                <div class="input-group mb-2" style="max-width: 300px;">
+                    <label class="input-group-text" for="status">Ubah Status</label>
+                    <select class="form-select" name="status" id="status">
+                        <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="diproses" {% if order.status == 'diproses' %}selected{% endif %}>Diproses</option>
+                        <option value="selesai" {% if order.status == 'selesai' %}selected{% endif %}>Selesai</option>
+                        <option value="dibatalkan" {% if order.status == 'dibatalkan' %}selected{% endif %}>Dibatalkan</option>
+                    </select>
+                    <button class="btn btn-primary" type="submit">Update</button>
+                </div>
+            </form>
+            <h6>Daftar Item:</h6>
+            <ul class="list-group mb-2">
+                {% for item in order.items %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ item.name }} (x{{ item.quantity }})
+                    <span>Rp {{ item.subtotal|int|default(0) }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            <h5>Total: Rp {{ order.total|int|default(0) }}</h5>
+        </div>
+    </div>
+    <a href="{{ url_for('admin_orders') }}" class="btn btn-secondary">Kembali ke Daftar Pesanan</a>
+</div>
+{% endblock %} 
