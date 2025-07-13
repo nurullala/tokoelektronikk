@@ -1,41 +1,23 @@
-# Aplikasi Python
+# 🛒 Toko Elektronik
 
-Aplikasi Python sederhana yang dapat dikembangkan sesuai kebutuhan.
+Selamat datang di proyek **Toko Elektronik**!  
+Ini adalah aplikasi sederhana yang dirancang untuk mengelola data produk dan penjualan di sebuah toko elektronik.
 
-## Instalasi
+## 📦 Fitur Utama
 
-1. Pastikan Python sudah terinstall di sistem Anda
-2. Clone atau download repository ini
-3. Install dependensi (jika ada):
+- ✨ Menampilkan daftar produk elektronik
+- ➕ Menambahkan data produk baru
+- 📝 Mengedit dan menghapus produk
+- 📊 Mungkin dikembangkan untuk laporan penjualan
+- 💾 Terhubung ke database
+
+## 🛠️ Teknologi yang Digunakan
+
+- **Bahasa Pemrograman:** (contoh: Java, PHP, HTML, Flutter, dsb.)
+- **Database:** MySQL / phpMyAdmin
+- **Versi Kontrol:** Git & GitHub
+
+## 🚀 Cara Menjalankan (opsional)
+1. Clone repo ini:
    ```bash
-   pip install -r requirements.txt
-   ```
-
-## Cara Menjalankan
-
-Jalankan aplikasi dengan perintah:
-```bash
-python main.py
-```
-
-## Struktur Proyek
-
-```
-tokoelektorik/
-├── main.py          # Entry point aplikasi
-├── requirements.txt # Dependensi Python
-├── README.md       # Dokumentasi
-└── src/            # Folder untuk kode sumber (opsional)
-```
-
-## Pengembangan
-
-Anda dapat menambahkan file Python lainnya di folder `src/` atau langsung di root folder sesuai kebutuhan aplikasi Anda.
-
-## Jenis Aplikasi yang Bisa Dibuat
-
-- Aplikasi GUI dengan tkinter
-- Web application dengan Flask/Django
-- Aplikasi data processing
-- Game sederhana
-- Dan banyak lagi! 
+   git clone https://github.com/nurullala/tokoelektronikk.git
